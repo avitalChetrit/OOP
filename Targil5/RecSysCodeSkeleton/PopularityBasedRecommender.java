@@ -13,9 +13,17 @@ class PopularityBasedRecommender<T extends Item> extends RecommenderSystem<T> {
 
     @Override
     public List<T> recommendTop10(int userId) {
-        // TODO: implement
-        return null;
+        return items.values().stream()
+                .filter(i -> !isRatedByUser(userId, i.getId())) // Remove items the user already rated
+                .filter(i -> getItemRatingsCount(i.getId()) >= POPULARITY_THRESHOLD) // Popular items only
+                .sorted(Comparator
+                        .comparingDouble((T item) -> getItemAverageRating(item.getId())).reversed() // Higher avg rating first
+                        .thenComparing(item -> getItemRatingsCount(item.getId()), Comparator.reverseOrder()) // More ratings
+                        .thenComparing(Item::getName)) // Lexicographic order
+                .limit(10)
+                .collect(Collectors.toList());
     }
+
 
     public double getItemAverageRating(int itemId) {
         // TODO: implement
@@ -29,10 +37,15 @@ class PopularityBasedRecommender<T extends Item> extends RecommenderSystem<T> {
     public int getItemRatingsCount(int itemId) {
         // TODO: implement
         // Returns the number of times the item with the given ID was rated by users
-        return (int) ratings.stream()
+        return ratings.stream()
                 .filter(r -> r.getItemId() == itemId) // Filters only the ratings for the requested item
                 .count(); // Counts how many such ratings exist
 
+    }
+
+    private boolean isRatedByUser(int userId, int itemId) {
+        return ratings.stream()
+                .anyMatch(r->r.getItemId()== itemId && r.getUserId()== userId);
     }
 
 }

@@ -21,6 +21,17 @@ public class MainApp {
     }
     public static void initElements() throws IOException {
         // TODO: initialize users, books and ratings
+        users = Files.lines(Paths.get(USERS_PATH))
+                .map(l-> new User(l))
+                .collect(Collectors.toMap(
+                        User::getId,
+                        u->u
+                ));
+
+
+        books = Files.lines(Paths.get(USERS_PATH))
+                .map(l-> new User(l))
+
     }
     public static void testRecommenderSystem() {
         Scanner in = new Scanner(System.in);

@@ -12,12 +12,59 @@ class ProfileBasedRecommender<T extends Item> extends RecommenderSystem<T> {
 
     @Override
     public List<T> recommendTop10(int userId) {
-        // TODO: implement
-        return null;
+        User user = users.get(userId);
+        if (user == null) return List.of();
+
+        // Step 1: Find matching users
+        List<User> matchingUsers = getMatchingProfileUsers(userId);
+        Set<Integer> matchingUserIds = matchingUsers.stream()
+                .map(User::getId)
+                .collect(Collectors.toSet());
+
+        // Step 2: Group ratings by itemId from matching users
+        Map<Integer, List<Rating<T>>> ratingsByItem = ratings.stream()
+                .filter(r -> matchingUserIds.contains(r.getUserId()))
+                .collect(Collectors.groupingBy(Rating::getItemId));
+
+        // Step 3: Compute average ratings for items with at least 5 ratings
+        Map<Integer, Double> avgRatings = ratingsByItem.entrySet().stream()
+                .filter(e -> e.getValue().size() >= 5)
+                .collect(Collectors.toMap( // Convert each entry to (itemId -> average rating) pair
+                        Map.Entry::getKey,
+                        e -> e.getValue().stream()
+                                .mapToDouble(Rating::getRating) // Convert Rating<T> to primitive double
+                                .average().orElse(0.0)
+                ));
+
+        // Step 4: Build recommendation list
+        return items.values().stream()
+                // Exclude items already rated by the user
+                .filter(item -> ratings.stream()
+                        .noneMatch(r -> r.getUserId() == userId && r.getItemId() == item.getId()))
+                // Only include items that passed the previous step
+                .filter(item -> avgRatings.containsKey(item.getId()))
+                // Sort based on avg rating desc, then rating count desc, then name
+                .sorted(Comparator
+                        .comparingDouble((T item) -> avgRatings.get(item.getId())).reversed()
+                        .thenComparing(item -> ratingsByItem.get(item.getId()).size(), Comparator.reverseOrder())
+                        .thenComparing(Item::getName)
+                )
+                .limit(10)
+                .collect(Collectors.toList());
     }
 
     public List<User> getMatchingProfileUsers(int userId) {
-        // TODO: implement
-        return null;
+        User user = users.get(userId);
+
+        if (user == null) return List.of();
+
+        return users.values().stream()
+                .filter(u ->
+                        u.getGender() == user.getGender() &&
+                        u.getAge() >= user.getAge() - 5 &&
+                        u.getAge() <= user.getAge() + 5 &&
+                        u.getId() != userId)
+                .collect(Collectors.toList());
     }
+
 }
