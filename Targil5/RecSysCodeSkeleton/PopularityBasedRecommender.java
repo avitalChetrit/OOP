@@ -19,32 +19,30 @@ class PopularityBasedRecommender<T extends Item> extends RecommenderSystem<T> {
                         .comparingDouble((T item) -> getItemAverageRating(item.getId())).reversed() // Higher avg rating first
                         .thenComparing(item -> getItemRatingsCount(item.getId()), Comparator.reverseOrder()) // More ratings
                         .thenComparing(Item::getName)) // Lexicographic order
-                .limit(10)
+                .limit(NUM_OF_RECOMMENDATIONS)
                 .collect(Collectors.toList());
     }
 
 
     public double getItemAverageRating(int itemId) {
-        // TODO: implement
         // Returns the average rating of the item with the given ID
-        return ratings.stream()
-                .filter(r -> r.getItemId() == itemId) // Filters only the ratings for the requested item
-                .mapToDouble(Rating::getRating) // Converts the ratings to numeric (double) values
-                .average() // Computes the average
-                .orElse(0.0); // Returns 0 if there are no ratings
+        return  ratingsByItem.get(itemId)
+                .stream()
+                .mapToDouble(Rating::getRating)
+                .average()
+                .orElse(0.0);
+
     }
+
     public int getItemRatingsCount(int itemId) {
-        // TODO: implement
         // Returns the number of times the item with the given ID was rated by users
-        return (int) ratings.stream()
-                .filter(r -> r.getItemId() == itemId) // Filters only the ratings for the requested item
-                .count(); // Counts how many such ratings exist
-
+        List<Rating<T>> itemRatings = ratingsByItem.get(itemId);
+        return itemRatings == null ? 0 : itemRatings.size();
     }
 
-    private boolean isRatedByUser(int userId, int itemId) {
-        return ratings.stream()
-                .anyMatch(r->r.getItemId()== itemId && r.getUserId()== userId);
+    public boolean isRatedByUser(int userId, int itemId) {
+        return ratingsByUser.get(userId).stream()
+                .anyMatch(r -> r.getItemId() == itemId);
     }
 
 }

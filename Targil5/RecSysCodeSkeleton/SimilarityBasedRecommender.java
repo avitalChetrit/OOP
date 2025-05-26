@@ -22,16 +22,27 @@ class SimilarityBasedRecommender<T extends Item> extends RecommenderSystem<T> {
                 .orElse(0.0);
 
         // 2. Compute item biases (average of rating - global bias per item)
-        this.itemBiases = ratings.stream()
-                .collect(groupingBy(Rating::getItemId,
-                        averagingDouble(r -> r.getRating() - globalBias)));
+        this.itemBiases = ratingsByItem.entrySet().stream()
+                .collect(toMap(
+                        Map.Entry::getKey,
+                        entry -> entry.getValue().stream()
+                                .mapToDouble(r -> r.getRating() - globalBias)
+                                .average()
+                                .orElse(0.0)
+                ));
+
 
         // 3. Compute user biases (average of rating - global bias - item bias per user)
-        this.userBiases = ratings.stream()
-                .collect(groupingBy(Rating::getUserId,
-                        averagingDouble(r -> r.getRating()
-                                - globalBias
-                                - itemBiases.getOrDefault(r.getItemId(), 0.0))));
+        this.userBiases = ratingsByUser.entrySet().stream()
+                .collect(toMap(
+                        Map.Entry::getKey,
+                        entry -> entry.getValue().stream()
+                                .mapToDouble(r -> r.getRating()
+                                        - globalBias
+                                        - itemBiases.getOrDefault(r.getItemId(), 0.0))
+                                .average()
+                                .orElse(0.0)
+                ));
     }
 
     public double getBiasFreeRating(Rating<T> r) {
@@ -118,42 +129,44 @@ class SimilarityBasedRecommender<T extends Item> extends RecommenderSystem<T> {
                 .count();
     }
 
-
-
-    /** Dot‑product similarity; 0 if <10 shared items. */
+    /** Dot-product similarity; returns 0 if there are fewer than 10 shared items. */
     public double getSimilarity(int u1, int u2) {
-        // מוציאים את כל הדירוגים של u1 ו־u2 לתוך מפות: itemId -> דירוג נטול הטיות
+        // Extract all ratings of u1 and u2 into maps: itemId -> bias-free rating
         Map<Integer, Double> u1Ratings = ratings.stream()
                 .filter(r -> r.getUserId() == u1)
-                .collect(toMap(r -> r.getItemId(), this::getBiasFreeRating));
+                .collect(toMap(Rating::getItemId, this::getBiasFreeRating));
 
         Map<Integer, Double> u2Ratings = ratings.stream()
                 .filter(r -> r.getUserId() == u2)
-                .collect(toMap(r -> r.getItemId(), this::getBiasFreeRating));
+                .collect(toMap(Rating::getItemId, this::getBiasFreeRating));
 
-        // מזהים את הפריטים שדורגו על ידי שני המשתמשים
+        // Identify items rated by both users
         Set<Integer> commonItems = u1Ratings.keySet().stream()
                 .filter(u2Ratings::containsKey)
                 .collect(toSet());
 
-        // אם יש פחות מ־10 פריטים משותפים, הדמיון הוא 0
+        // Return 0 similarity if fewer than 10 common items
         if (commonItems.size() < 10) return 0;
 
-        // חישוב מכפלה סקלרית של הדירוגים נטולי ההטיות
+        // Compute dot-product of the bias-free ratings for common items
         return commonItems.stream()
                 .mapToDouble(itemId -> u1Ratings.get(itemId) * u2Ratings.get(itemId))
                 .sum();
     }
 
+
     public double getGlobalBias() {
         return globalBias;
     }
+
     public double getItemBias(int itemId) {
         return itemBiases.getOrDefault(itemId, 0.0);
     }
+
     public double getUserBias(int userId) {
         return userBiases.getOrDefault(userId, 0.0);
     }
+
     public void printGlobalBias() {
         System.out.println("Global bias: " + String.format("%.2f", globalBias));
     }
