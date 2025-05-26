@@ -1,6 +1,5 @@
 import java.util.*;
-
-import static java.util.stream.Collectors.*;
+import java.util.stream.Collectors;
 
 /** Popularity‑based recommender implementation. */
 class PopularityBasedRecommender<T extends Item> extends RecommenderSystem<T> {
@@ -37,7 +36,7 @@ class PopularityBasedRecommender<T extends Item> extends RecommenderSystem<T> {
     public int getItemRatingsCount(int itemId) {
         // TODO: implement
         // Returns the number of times the item with the given ID was rated by users
-        return ratings.stream()
+        return (int) ratings.stream()
                 .filter(r -> r.getItemId() == itemId) // Filters only the ratings for the requested item
                 .count(); // Counts how many such ratings exist
 

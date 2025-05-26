@@ -4,10 +4,11 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toMap;
 
-public class MainApp {
+public class AppMain {
     // TODO: change the paths to correspond with the location of the files on the local computer
     public static final String USERS_PATH = "Users.txt";
     public static final String BOOKS_PATH = "Books.txt";
@@ -19,20 +20,23 @@ public class MainApp {
         initElements();
         testRecommenderSystem();
     }
+
     public static void initElements() throws IOException {
-        // TODO: initialize users, books and ratings
         users = Files.lines(Paths.get(USERS_PATH))
-                .map(l-> new User(l))
-                .collect(Collectors.toMap(
-                        User::getId,
-                        u->u
-                ));
+                .map(User::new)
+                .collect(Collectors.toMap(User::getId, u -> u));
 
+        books = Files.lines(Paths.get(BOOKS_PATH))
+                .map(Book::new)
+                .collect(Collectors.toMap(Book::getId, b -> b));
 
-        books = Files.lines(Paths.get(USERS_PATH))
-                .map(l-> new User(l))
+        ratings = Files.lines(Paths.get(RATINGS_PATH))
+                .map(line -> new Rating<Book>(line))
+                .collect(Collectors.toList());
 
     }
+
+
     public static void testRecommenderSystem() {
         Scanner in = new Scanner(System.in);
 

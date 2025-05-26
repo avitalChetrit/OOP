@@ -1,7 +1,6 @@
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.*;
 
@@ -24,7 +23,7 @@ class SimilarityBasedRecommender<T extends Item> extends RecommenderSystem<T> {
 
         // 2. Compute item biases (average of rating - global bias per item)
         this.itemBiases = ratings.stream()
-                .collect(groupingBy(r -> r.getItem().getId(),
+                .collect(groupingBy(Rating::getItemId,
                         averagingDouble(r -> r.getRating() - globalBias)));
 
         // 3. Compute user biases (average of rating - global bias - item bias per user)
@@ -32,11 +31,11 @@ class SimilarityBasedRecommender<T extends Item> extends RecommenderSystem<T> {
                 .collect(groupingBy(Rating::getUserId,
                         averagingDouble(r -> r.getRating()
                                 - globalBias
-                                - itemBiases.getOrDefault(r.getItem().getId(), 0.0))));
+                                - itemBiases.getOrDefault(r.getItemId(), 0.0))));
     }
 
     public double getBiasFreeRating(Rating<T> r) {
-        double itemBias = itemBiases.getOrDefault(r.getItem().getId(), 0.0);
+        double itemBias = itemBiases.getOrDefault(r.getItemId(), 0.0);
         double userBias = userBiases.getOrDefault(r.getUserId(), 0.0);
         return r.getRating() - globalBias - itemBias - userBias;
     }
@@ -46,7 +45,7 @@ class SimilarityBasedRecommender<T extends Item> extends RecommenderSystem<T> {
         // 1. Get bias-free ratings for current user
         Set<Integer> ratedItemIds = ratings.stream()
                 .filter(r -> r.getUserId() == userId)
-                .map(r -> r.getItem().getId())
+                .map(Rating::getItemId)
                 .collect(toSet());
 
         // 2. Compute similarity for all other users
@@ -63,42 +62,45 @@ class SimilarityBasedRecommender<T extends Item> extends RecommenderSystem<T> {
                 .sorted(Map.Entry.<Integer, Double>comparingByValue().reversed())
                 .limit(10)
                 .map(Map.Entry::getKey)
-                .collect(toList());
+                .toList();
 
         // 4. Collect candidate items (rated by at least 5 similar users and not rated by userId)
         Map<Integer, List<Rating<T>>> itemRatingsBySimilarUsers = ratings.stream()
                 .filter(r -> topSimilarUsers.contains(r.getUserId()))
-                .filter(r -> !ratedItemIds.contains(r.getItem().getId()))
-                .collect(groupingBy(r -> r.getItem().getId()));
+                .filter(r -> !ratedItemIds.contains(r.getItemId()))
+                .collect(groupingBy(Rating::getItemId));
 
-        Map<Integer, Double> predictedRatings = new HashMap<>();
+        Map<Integer, Double> predictedRatings = itemRatingsBySimilarUsers.entrySet().stream()
+                .filter(entry -> entry.getValue().size() >= 5) // At least five ratings
+                .map(entry -> {
+                    int itemId = entry.getKey();
+                    List<Rating<T>> itemRatings = entry.getValue();
 
-        for (Map.Entry<Integer, List<Rating<T>>> entry : itemRatingsBySimilarUsers.entrySet()) {
-            int itemId = entry.getKey();
-            List<Rating<T>> itemRatings = entry.getValue();
+                    double[] numeratorAndDenominator = itemRatings.stream()
+                            .map(r -> {
+                                double similarity = similarities.getOrDefault(r.getUserId(), 0.0);
+                                double biasFree = getBiasFreeRating(r);
+                                return new double[]{similarity * biasFree, Math.abs(similarity)};
+                            })
+                            .reduce(new double[]{0.0, 0.0}, (a, b) -> new double[]{
+                                    a[0] + b[0], // sum numerator
+                                    a[1] + b[1]  // sum denominator
+                            });
 
-            if (itemRatings.size() < 5) continue;
+                    double denominator = numeratorAndDenominator[1];
+                    if (denominator == 0) return null;
 
-            double numerator = 0.0;
-            double denominator = 0.0;
+                    double predictedBiasFree = numeratorAndDenominator[0] / denominator;
+                    double predicted = predictedBiasFree
+                            + globalBias
+                            + itemBiases.getOrDefault(itemId, 0.0)
+                            + userBiases.getOrDefault(userId, 0.0);
 
-            for (Rating<T> r : itemRatings) {
-                double similarity = similarities.getOrDefault(r.getUserId(), 0.0);
-                double biasFree = getBiasFreeRating(r);
-                numerator += similarity * biasFree;
-                denominator += Math.abs(similarity);
-            }
+                    return Map.entry(itemId, predicted);
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-            if (denominator == 0) continue;
-
-            double predictedBiasFree = numerator / denominator;
-            double predicted = predictedBiasFree
-                    + globalBias
-                    + itemBiases.getOrDefault(itemId, 0.0)
-                    + userBiases.getOrDefault(userId, 0.0);
-
-            predictedRatings.put(itemId, predicted);
-        }
 
         // 5. Return top-10 recommended items (with tie-breaking)
         return predictedRatings.entrySet().stream()
@@ -110,17 +112,24 @@ class SimilarityBasedRecommender<T extends Item> extends RecommenderSystem<T> {
                 .collect(toList());
     }
 
+    private long getItemRatingsCount(int itemId) {
+        return ratings.stream()
+                .filter(r -> r.getItemId() == itemId)
+                .count();
+    }
+
+
 
     /** Dot‑product similarity; 0 if <10 shared items. */
     public double getSimilarity(int u1, int u2) {
         // מוציאים את כל הדירוגים של u1 ו־u2 לתוך מפות: itemId -> דירוג נטול הטיות
         Map<Integer, Double> u1Ratings = ratings.stream()
                 .filter(r -> r.getUserId() == u1)
-                .collect(toMap(r -> r.getItem().getId(), this::getBiasFreeRating));
+                .collect(toMap(r -> r.getItemId(), this::getBiasFreeRating));
 
         Map<Integer, Double> u2Ratings = ratings.stream()
                 .filter(r -> r.getUserId() == u2)
-                .collect(toMap(r -> r.getItem().getId(), this::getBiasFreeRating));
+                .collect(toMap(r -> r.getItemId(), this::getBiasFreeRating));
 
         // מזהים את הפריטים שדורגו על ידי שני המשתמשים
         Set<Integer> commonItems = u1Ratings.keySet().stream()
@@ -136,7 +145,15 @@ class SimilarityBasedRecommender<T extends Item> extends RecommenderSystem<T> {
                 .sum();
     }
 
-
+    public double getGlobalBias() {
+        return globalBias;
+    }
+    public double getItemBias(int itemId) {
+        return itemBiases.getOrDefault(itemId, 0.0);
+    }
+    public double getUserBias(int userId) {
+        return userBiases.getOrDefault(userId, 0.0);
+    }
     public void printGlobalBias() {
         System.out.println("Global bias: " + String.format("%.2f", globalBias));
     }
