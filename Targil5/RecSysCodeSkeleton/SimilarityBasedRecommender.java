@@ -62,7 +62,7 @@ class SimilarityBasedRecommender<T extends Item> extends RecommenderSystem<T> {
                 .sorted(Map.Entry.<Integer, Double>comparingByValue().reversed())
                 .limit(10)
                 .map(Map.Entry::getKey)
-                .toList();
+                .collect(Collectors.toList());
 
         // 4. Collect candidate items (rated by at least 5 similar users and not rated by userId)
         Map<Integer, List<Rating<T>>> itemRatingsBySimilarUsers = ratings.stream()
