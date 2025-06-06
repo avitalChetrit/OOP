@@ -10,7 +10,7 @@ abstract class RecommenderSystem<T extends Item> {
     protected final Map<Integer, User> users;
     protected final Map<Integer, T> items;
     protected final List<Rating<T>> ratings;
-    // data structures to make the operation more efficient / simpler
+
     protected final Map<Integer, List<Rating<T>>> ratingsByUser;
     protected final Map<Integer, List<Rating<T>>> ratingsByItem;
     protected final int NUM_OF_RECOMMENDATIONS = 10;
