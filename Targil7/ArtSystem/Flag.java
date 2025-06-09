@@ -1,7 +1,8 @@
- 
-
+/**
+ * Represents a Flag element with specific attributes like color and carrier height.
+ * A Flag is a rectangular element belonging to a terrestrial habitat.
+ */
 public class Flag extends Element {
-
     Color color;
     int carrierHeight;
 
@@ -11,7 +12,16 @@ public class Flag extends Element {
         this.carrierHeight = carrierHeight;
     }
 
- 
+    @Override
+    public String getName() {
+        return "flag";
+    }
+
+    @Override
+    public Habitat getHabitat() {
+        return Habitat.TERRESTRIAL;
+    }
+
     public Color getColor() {
         return color;
     }
@@ -21,12 +31,14 @@ public class Flag extends Element {
     }
 
     @Override
-    public String getName() {
-        return Flag.class.getSimpleName().toLowerCase();
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
     }
 
     @Override
-    public Habitat getHabitat() {
-        return Habitat.TERRESTRIAL;
+    public double calculateArea() {
+        return width * length; // Rectangle
     }
+
+
 }

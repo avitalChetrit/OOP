@@ -1,11 +1,10 @@
- 
+/**
+ * Represents a Tree element in a terrestrial habitat.
+ * A tree has a defined number of leaves and is represented as a geometric shape
+ * comprised of a rectangular base and a triangular top.
+ */
 public class Tree extends Element {
-
     int leavesAmount;
-
-    public int getLeavesAmount() {
-        return leavesAmount;
-    }
 
     public Tree(double width, double height, int leavesAmount, String path) {
         super(width, height, path);
@@ -13,12 +12,27 @@ public class Tree extends Element {
     }
 
     @Override
-     public String getName() {
+    public String getName() {
         return "tree";
     }
 
     @Override
     public Habitat getHabitat() {
         return Habitat.TERRESTRIAL;
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public double calculateArea() {
+        // Rectangle + Triangle: width * length + (width * length) / 2
+        return width * length + (width * length) / 2;
+    }
+
+    public int getLeavesAmount() {
+        return leavesAmount;
     }
 }

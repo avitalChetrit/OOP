@@ -1,4 +1,3 @@
- 
 public class Kite extends Element {
     Color color;
 
@@ -7,14 +6,6 @@ public class Kite extends Element {
         this.color = color;
     }
 
-     public Color getColor() {
-        return color;
-    }
-
-    public void setColor(Color color) {
-        this.color = color;
-    }
-	
     @Override
     public String getName() {
         return "kite";
@@ -23,5 +14,24 @@ public class Kite extends Element {
     @Override
     public Habitat getHabitat() {
         return Habitat.TERRESTRIAL;
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public double calculateArea() {
+        // Kite area: (width * height) / 2
+        return (width * length) / 2;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
     }
 }

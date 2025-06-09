@@ -2,8 +2,13 @@
 public abstract class Element{
     protected double width;
     protected double length;
-    private String path;
-    private String name;
+    private final String path;
+
+    public Element(double width, double length, String path) {
+        this.width = width;
+        this.length = length;
+        this.path= path==null?"":path;
+    }
 
     public double getWidth() {
         return width;
@@ -21,20 +26,14 @@ public abstract class Element{
         this.length = length;
     }
 
-    public Element(double width, double length, String path) {
-        this.width = width;
-        this.length = length;
-        this.path= path==null?"":path;
-    }
+    public String getPath() { return path; }
 
+    public String getFullName() { return path.isEmpty() ? getName() : path + "/" + getName(); }
 
-    public String getPath(){
-        return path;
-    }
-    public String getFullName(){
-        return path.isEmpty()? getName() : path+"/"+getName();
-    }
     public abstract String getName();
     public abstract Habitat getHabitat();
+    public abstract void accept(Visitor visitor);
+    public abstract double calculateArea();
 
 }
+

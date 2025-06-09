@@ -2,8 +2,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toMap;
 
@@ -19,7 +17,7 @@ public class Main {
             artMenu(scanner);
         }
         if (choice.equals("r")){
-            reportsMenu(scanner);
+            //reportsMenu(scanner);
         }
     }
     public static Painting readElementDetails(String path) throws IOException {
@@ -45,7 +43,9 @@ public class Main {
         while (!(myString = scanner.nextLine()).equals("q")) {
             switch (myString) {
                 case "c":
-                    //TODO: Add counting behavior
+                    CountElementsVisitor countElementsVisitor = new CountElementsVisitor();
+                    root.accept(countElementsVisitor);
+                    System.out.println(countElementsVisitor.getCount());
                     break;
                 case "sh":
                     //TODO: Add short representation behavior
@@ -63,33 +63,33 @@ public class Main {
         }
     }
 
-    public static void reportsMenu(Scanner sc){
-        System.out.println("Choose report type:");
-        System.out.println("1 - Incident");
-        System.out.println("2 - Movement");
-        System.out.println("3 - Contact");
-        System.out.println("4 - Routine");
-
-        // TODO: Add logic to create the report according to the user choices
-        String type = sc.nextLine().trim();
-        System.out.println("Enter the report content:");
-        String content = sc.nextLine();
-        System.out.println("Add decorators one by one (enter code). Type 's' to submit and print the report:");
-        System.out.println("u - Urgent ([URGENT] at the start)");
-        System.out.println("c - Classified ([CLASSIFIED] at the end)");
-        System.out.println("t - To Commander ([TO COMMANDER] at the end)");
-        System.out.println("a - Audio Attachment ([AUDIO ATTACHED] at the end)");
-
-        while (true) {
-            String dec = sc.nextLine().trim();
-            if (dec.equals("s")) break;
-        }
-        // TODO: Add a Report Factory and use it to create a report based on the type and decorators
-        Report report = null;
-
-        if (report != null)
-            System.out.println(report.getContent());
-        else
-            System.out.println("Report construction failed. Check implementation.");
-    }
+//    public static void reportsMenu(Scanner sc){
+//        System.out.println("Choose report type:");
+//        System.out.println("1 - Incident");
+//        System.out.println("2 - Movement");
+//        System.out.println("3 - Contact");
+//        System.out.println("4 - Routine");
+//
+//        // TODO: Add logic to create the report according to the user choices
+//        String type = sc.nextLine().trim();
+//        System.out.println("Enter the report content:");
+//        String content = sc.nextLine();
+//        System.out.println("Add decorators one by one (enter code). Type 's' to submit and print the report:");
+//        System.out.println("u - Urgent ([URGENT] at the start)");
+//        System.out.println("c - Classified ([CLASSIFIED] at the end)");
+//        System.out.println("t - To Commander ([TO COMMANDER] at the end)");
+//        System.out.println("a - Audio Attachment ([AUDIO ATTACHED] at the end)");
+//
+//        while (true) {
+//            String dec = sc.nextLine().trim();
+//            if (dec.equals("s")) break;
+//        }
+//        // TODO: Add a Report Factory and use it to create a report based on the type and decorators
+//        Report report = null;
+//
+//        if (report != null)
+//            System.out.println(report.getContent());
+//        else
+//            System.out.println("Report construction failed. Check implementation.");
+//    }
 }
