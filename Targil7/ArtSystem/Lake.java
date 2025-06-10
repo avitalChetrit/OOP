@@ -22,6 +22,12 @@ public class Lake extends CompositeElement {
         return Math.PI * Math.pow(width / 2, 2);
     }
 
+    @Override
+    public boolean canContain(Element element) {
+        return element.getHabitat() == Habitat.AQUATIC ||
+                element.getHabitat() == Habitat.AMPHIBIAN;
+    }
+
     public double getDiameter() {
         return width;
     }

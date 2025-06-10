@@ -12,7 +12,6 @@ public abstract class CompositeElement extends Element {
         super(width, length, path);
         this.name = name;
         this.children = new ArrayList<>();
-
     }
 
     public List<Element> getChildren() {
@@ -29,10 +28,7 @@ public abstract class CompositeElement extends Element {
         }
     }
 
-    public boolean canContain(Element element) {
-        return element.getHabitat() == this.getHabitat() ||
-                element.getHabitat() == Habitat.AMPHIBIAN;
-    }
+    public abstract boolean canContain(Element element);
 
 
 }

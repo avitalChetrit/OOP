@@ -6,6 +6,8 @@ public class TotalAreaVisitor implements Visitor {
         return (int) Math.round(totalArea);
     }
 
+    public void clearTotalArea() { totalArea = 0; }
+
     @Override
     public void visit(Island island) {
         totalArea += island.calculateArea();

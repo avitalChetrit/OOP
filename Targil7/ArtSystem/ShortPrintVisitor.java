@@ -6,6 +6,8 @@ public class ShortPrintVisitor implements Visitor {
         return result.toString().trim();
     }
 
+    public void clearResult() { result = new StringBuilder(); }
+
     @Override
     public void visit(Island island) {
         result.append(island.getFullName()).append("\n");
@@ -53,5 +55,7 @@ public class ShortPrintVisitor implements Visitor {
             element.accept(this);
         }
     }
+
+
 }
 

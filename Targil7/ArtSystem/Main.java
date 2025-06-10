@@ -48,16 +48,20 @@ public class Main {
                     System.out.println(countElementsVisitor.getCount());
                     break;
                 case "sh":
-                    //TODO: Add short representation behavior
+                    ShortPrintVisitor shortPrintVisitor = new ShortPrintVisitor();
+                    root.accept(shortPrintVisitor);
+                    System.out.println(shortPrintVisitor.getResult());
                     break;
                 case "ta":
-                    //TODO: Add area calculation behavior
+                    TotalAreaVisitor totalAreaVisitor = new TotalAreaVisitor();
+                    root.accept(totalAreaVisitor);
+                    System.out.println(totalAreaVisitor.getTotalArea());
                     break;
                 case "lp":
-                    //TODO: Add long representation behavior
+                    LongPrintVisitor longPrintVisitor = new LongPrintVisitor();
+                    root.accept(longPrintVisitor);
+                    System.out.println(longPrintVisitor.getResult());
                     break;
-
-
             }
 
         }

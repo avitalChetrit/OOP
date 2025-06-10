@@ -6,6 +6,8 @@ public class LongPrintVisitor implements Visitor {
         return result.toString().trim();
     }
 
+    public void clearResult() { result = new StringBuilder(); }
+
     @Override
     public void visit(Island island) {
         if (island.getChildren().isEmpty()) {

@@ -26,4 +26,10 @@ public class Island extends CompositeElement {
     public double getDiameter() {
         return width;
     }
+
+    @Override
+    public boolean canContain(Element element) {
+        return element.getHabitat() == Habitat.TERRESTRIAL ||
+                element.getHabitat() == Habitat.AMPHIBIAN;
+    }
 }

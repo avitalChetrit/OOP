@@ -7,6 +7,8 @@ public class CountElementsVisitor implements Visitor {
         return count;
     }
 
+    public void clearCount() { count = 0; }
+
     @Override
     public void visit(Island island) {
         count++;
