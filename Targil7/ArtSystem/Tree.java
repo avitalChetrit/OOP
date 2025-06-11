@@ -28,8 +28,8 @@ public class Tree extends Element {
 
     @Override
     public double calculateArea() {
-        // Rectangle + Triangle: width * length + (width * length) / 2
-        return width * length + (width * length) / 2;
+        // Rectangle + Triangle: (width/2) * length
+        return (width/2) * length;
     }
 
     public int getLeavesAmount() {
