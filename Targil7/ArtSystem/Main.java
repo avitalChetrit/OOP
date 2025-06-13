@@ -16,58 +16,58 @@ public class Main {
                 "r: Reports");
         String choice = scanner.nextLine();
         if (choice.equals("a")){
-            //artMenu(scanner);
+            artMenu(scanner);
         }
         if (choice.equals("r")){
             reportsMenu(scanner);
         }
     }
-//    public static Painting readElementDetails(String path) throws IOException {
-//        Painting painting = new Painting();
-//        Map<String, Element> files = new HashMap();
-//
-//        Files.lines(Paths.get(path))
-//                .map(str -> ElementDetailsFactory.getPaintingElement(str))
-//                .forEach(e-> painting.addElement(e));
-//        return painting;
-//    }
-//    public static void artMenu(Scanner scanner) throws IOException {
-//        System.out.println("Enter the path of the painting description");
-//        String path=scanner.nextLine();
-//        Painting root= readElementDetails(path);
-//        System.out.println("Choose from the following options:\n" +
-//                "q: quit\n" +
-//                "c: count elements\n" +
-//                "lp: long print\n" +
-//                "sh: short print\n" +
-//                "ta: total area");
-//        String myString;
-//        while (!(myString = scanner.nextLine()).equals("q")) {
-//            switch (myString) {
-//                case "c":
-//                    CountElementsVisitor countElementsVisitor = new CountElementsVisitor();
-//                    root.accept(countElementsVisitor);
-//                    System.out.println(countElementsVisitor.getCount());
-//                    break;
-//                case "sh":
-//                    ShortPrintVisitor shortPrintVisitor = new ShortPrintVisitor();
-//                    root.accept(shortPrintVisitor);
-//                    System.out.println(shortPrintVisitor.getResult());
-//                    break;
-//                case "ta":
-//                    TotalAreaVisitor totalAreaVisitor = new TotalAreaVisitor();
-//                    root.accept(totalAreaVisitor);
-//                    System.out.println(totalAreaVisitor.getTotalArea());
-//                    break;
-//                case "lp":
-//                    LongPrintVisitor longPrintVisitor = new LongPrintVisitor();
-//                    root.accept(longPrintVisitor);
-//                    System.out.println(longPrintVisitor.getResult());
-//                    break;
-//            }
-//
-//        }
-//    }
+    public static Painting readElementDetails(String path) throws IOException {
+        Painting painting = new Painting();
+        Map<String, Element> files = new HashMap();
+
+        Files.lines(Paths.get(path))
+                .map(str -> ElementDetailsFactory.getPaintingElement(str))
+                .forEach(e-> painting.addElement(e));
+        return painting;
+    }
+    public static void artMenu(Scanner scanner) throws IOException {
+        System.out.println("Enter the path of the painting description");
+        String path=scanner.nextLine();
+        Painting root= readElementDetails(path);
+        System.out.println("Choose from the following options:\n" +
+                "q: quit\n" +
+                "c: count elements\n" +
+                "lp: long print\n" +
+                "sh: short print\n" +
+                "ta: total area");
+        String myString;
+        while (!(myString = scanner.nextLine()).equals("q")) {
+            switch (myString) {
+                case "c":
+                    CountElementsVisitor countElementsVisitor = new CountElementsVisitor();
+                    root.accept(countElementsVisitor);
+                    System.out.println(countElementsVisitor.getCount());
+                    break;
+                case "sh":
+                    ShortPrintVisitor shortPrintVisitor = new ShortPrintVisitor();
+                    root.accept(shortPrintVisitor);
+                    System.out.println(shortPrintVisitor.getResult());
+                    break;
+                case "ta":
+                    TotalAreaVisitor totalAreaVisitor = new TotalAreaVisitor();
+                    root.accept(totalAreaVisitor);
+                    System.out.println(totalAreaVisitor.getTotalArea());
+                    break;
+                case "lp":
+                    LongPrintVisitor longPrintVisitor = new LongPrintVisitor();
+                    root.accept(longPrintVisitor);
+                    System.out.println(longPrintVisitor.getResult());
+                    break;
+            }
+
+        }
+    }
 
     public static void reportsMenu(Scanner sc){
         System.out.println("Choose report type:");

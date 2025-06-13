@@ -52,7 +52,8 @@ public class LongPrintVisitor implements Visitor {
 
     @Override
     public void visit(Flag flag) {
-        result.append("A flag of color: ").append(flag.getColor().toString().toLowerCase()).append(".");
+        result.append("A flag with color: ").append(flag.getColor())
+                .append(" of height ").append((int)flag.getCarrierHeight()).append(". ");
     }
 
     @Override

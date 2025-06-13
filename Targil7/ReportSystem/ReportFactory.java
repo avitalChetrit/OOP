@@ -3,14 +3,14 @@ import java.util.List;
 public class ReportFactory {
 
     public static Report createReport(String type, String content, List<String> decorators) {
-        // יצירת הדוח הבסיסי
+        // create the base report
         Report baseReport = createBaseReport(type, content);
 
         if (baseReport == null) {
             return null;
         }
 
-        // הוספת הקישוטים בסדר שבו נבחרו
+        // add the decorators in the chosen order
         Report decoratedReport = baseReport;
         for (String decorator : decorators) {
             decoratedReport = addDecorator(decoratedReport, decorator);
