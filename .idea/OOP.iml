@@ -5,7 +5,7 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/Targil5/RecSysCodeSkeleton" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/Targil7/ArtSystem" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/Targil7/ReportSystem" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Targil7/ReportSystem" isTestSource="true" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

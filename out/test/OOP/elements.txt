@@ -1,0 +1,8 @@
+island name: Madagascar, diameter: 8
+lake name: Grand, diameter: 15
+Grand/boat material: Timber, width: 10, length: 10
+Grand/flag Color: Red, poleHeight: 5, width: 3, length: 3
+Grand/island name: Glover, diameter: 5
+Grand/Glover/tree leaves: 2500, width: 12, height: 15
+Grand/Glover/kid birth year: 2013, hair color: Black, width: 12, height: 15
+Grand/Glover/kite color: Red, width: 12, height: 15
